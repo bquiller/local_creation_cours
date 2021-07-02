@@ -1,4 +1,4 @@
-<?
+<?php
 require_once(__DIR__ . '/../../config.php');
 require_once($CFG->dirroot.'/enrol/meta/lib.php');
 require_once($CFG->dirroot.'/mod/url/lib.php');
@@ -27,7 +27,7 @@ function setTextField(ddl, id) {
 }
 </script>
 
-<?
+<?php
 //Instantiate simplehtml_form 
 $mform = new annul_html_form();
  
@@ -39,11 +39,14 @@ if ($mform->is_cancelled()) {
   $formdata = $mform->get_data();
   $course = $formdata->course;
   $tcourse = $formdata->tcourse;
-  $headers = "From: no-reply@unimes.fr\r\n";
-  $message = utf8_decode("demande de suppression du cours ".$tcourse." (".$course.") par ".$uid);
-  mail("brice.quillerie@unimes.fr",$message,$message,$headers);
-//  mail("sophie.vessiere@unimes.fr",$message,$message,$headers);
-  echo "Votre demande d'annulation a &eacute;t&eacute; prise en compte.<br/><br/> Pour &eacute;viter des cons&eacute;quences facheuses, celle-ci doit &ecirc;tre effectu&eacute; manuellement.";
+  $headers = "From: no-reply-coursenligne@unimes.fr\r\n";
+  $headers .= "Content-Type: text/html; charset=ISO-8859-1\r\n";
+  $subject = utf8_decode("demande de suppression du cours ".$tcourse." (".$course.") par ".$uid);
+  $message = utf8_decode("demande de suppression du cours ".$tcourse." (".$course.") par ".$uid."<br/><a href='".$CFG->wwwroot."/course/view.php?idnumber=".$course."'>Cliquez ici</a>.");
+  //mail("si-scol@unimes.fr",$subject,$message,$headers);
+  mail("no-reply-coursenligne@unimes.fr",$subject,$message,$headers);
+  mail("guillaume.galles@unimes.fr",$subject,$message,$headers);
+  echo "Votre demande d'annulation a &eacute;t&eacute; prise en compte.<br/><br/> Pour &eacute;viter des cons&eacute;quences f&acirc;cheuses, celle-ci doit &ecirc;tre effectu&eacute;e manuellement.";
 } else {
   // this branch is executed if the form is submitted but the data doesn't validate and the form should be redisplayed
   // or on the first display of the form.
