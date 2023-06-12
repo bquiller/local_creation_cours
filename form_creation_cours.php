@@ -75,7 +75,23 @@ class simplehtml_form extends moodleform {
 		$mform->setJsWarnings('Erreur de saisie ','Veuillez corriger');
 
 		// Première partie : cr&eacute;ation d'un cours
-		
+        $mform->addElement('html', "<b>Cet espace vous permet de cr&eacute;er un espace de cours en ligne sur la plateforme p&eacute;dagogique Un&icirc;mes. Les cours propos&eacute;s sont rattach&eacute;s aux maquettes universitaires valid&eacute;es.</b><br/><br/>
+Vous pouvez au choix :<br/>
+A.      Cr&eacute;er un espace de cours vide<br/>
+B.      Cr&eacute;er un espace de cours en r&eacute;cup&eacute;rant les ressources et activit&eacute;s que vous aviez dans votre espace de cours de l'an dernier<br/><br/>
+<table border=1><tr style='font-weight: bold; text-align: center'>
+        <td>Cr&eacute;er un espace de cours vide</td><td>R&eacute;cup&eacute;ration des contenus d'un cours de l'an dernier</td>
+    </tr><tr>
+        <td>1.  Vous devez identifier le cours que vous souhaitez cr&eacute;er via les 4 listes d&eacute;roulantes de la partie \" Cr&eacute;ation d'un cours vide \"<br/>
+        2.      Cliquez sur \" Enregistrer \" en bas de la page.
+        </td>
+        <td>
+        1.      Vous devez identifier le cours dans la maquette via les 4 listes d&eacute;roulantes de la partie \" Cr&eacute;ation d'un cours vide \"<br/>
+        2.      S&eacute;lectionnez le cours dont vous souhaitez r&eacute;cup&eacute;rer le contenu dans la liste d&eacute;roulante de la partie \" R&eacute;cup&eacute;ration d'un cours de l'an dernier \"<br/>
+        3.      Cliquez sur \" Enregistrer \" en bas de la page.
+        </td></tr></table>
+");
+
 		$mform->addElement('header', 'destination', 'Cr&eacute;ation d\'un cours vide');
 		$mform->addElement('html', 'S&eacute;lectionnez votre cours en utilisant obligatoirement les 4 listes d&eacute;roulantes.<br/><br/>');
 
@@ -180,7 +196,7 @@ class simplehtml_form extends moodleform {
 		}
 		$niveaux4_cache = apcu_fetch('niveaux4');
 
-		$select_niveau4 = $mform->createElement( 'select', 'niveau4', 'Niveau 4 :', null, array('onchange' => 'setTextField(this,\'tniveau4\');'));
+		$select_niveau4 = $mform->createElement( 'select', 'niveau4', 'Niveau 4 :', null, array('onchange' => 'setTextField(this,\'tniveau4\');', 'onblur' => 'setTextField(this,\'tniveau4\');'));
 		$select_niveau4->addOption( 'Cours', '', array( 'disabled' => 'disabled', 'selected'=>'true' ) );
 		foreach ($niveaux4_cache as $row) {
 			if (in_array($row[0],array_keys($courscrees)))
@@ -331,6 +347,9 @@ r.userid AND r.contextid = cx.id AND cx.instanceid = c.id AND r.roleid in (2,3) 
 
 
 		$this->add_action_buttons();
+
+		$mform->addElement('header', 'source', 'Suppression d\'un cours cr&eacute;&eacute; par erreur');
+		$mform->addElement('html', 'Si vous souhaitez annuler une demande de cr&eacute;ation de cours effectu&eacute;e depuis cette interface, <a href="annuler_creation_cours.php">cliquez ici</a>.<br/><br/>') ;
 
 	}
 	//Custom validation should be added here

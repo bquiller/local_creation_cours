@@ -52,6 +52,7 @@ top: 0;
 }
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-magnify/0.3.0/css/bootstrap-magnify.min.css" integrity="sha512-87oRirL4+UGU1hJaVeIATDDK5Jls/qE3sTFmAyc4zj+DdcJJmEgWwO4JhWaybNkz8jhNbMesbBnlg73YM5tadQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
 <script type="text/javascript" src="js/jquery.min.js"></script>
 <script type="text/javascript" src="js/jquery.chained.js"></script>
 
