@@ -3,7 +3,7 @@
 
 require_once("$CFG->libdir/formslib.php");
 // Decommenter pour forcer le rechargement du formulaire
-// apcu_clear_cache ();
+//apcu_clear_cache ();
 
 class simplehtml_form extends moodleform {
 	//Add elements to form
@@ -11,26 +11,68 @@ class simplehtml_form extends moodleform {
 		global $CFG;
 		global $USER;
 		
+		$hform = $this->_form; // Don't forget the underscore! 
+
+		// Bouton d'aide
+		$hform->addElement('html',"<a id='oaide' class='btn btn-secondary unimes' data-action='modal'>Comment utiliser le formulaire de cr&eacute;ation de cours ?</a><br/><br/>");
+
+        	$hform->addElement('html', "
+			<div id='popaide' class='modal moodle-has-zindex hide' data-region='modal-container' aria-hidden='false' role='dialog' tabindex='-1' style='z-index: 1052;'>
+			<div class='modal-dialog modal-lg' role='document' data-region='modal' aria-labelledby='0-modal-title' tabindex='0'>
+			<div class='modal-content'>
+			    <div class='modal-header'><h2 class='unimes'>Comment utiliser le formulaire de cr&eacute;ation de cours ?</h2>
+				<a class='close' data-action='hide' aria-label='Fermer' data-dismiss='modal' aria-hidden='true' id='faide'>
+		                    <i class='fa fa-times-circle-o' aria-hidden='true'></i>
+                		</a>
+			    </div>
+			    <div class='modal-body'>
+				Ce formulaire vous permet de demander la cr&eacute;ation d'un cours.
+				<br/>
+				Que souhaitez-vous faire ?
+				<br/><br/>
+				<table border='1'>
+				  <tr class='unimes'>
+				    <th>Vous souhaitez cr&eacute;er un espace de cours vide</th>
+				    <th>Vous souhaitez r&eacute;cup&eacute;rer votre cours de l'an dernier</th>
+				  </tr>
+				  <tr>
+				    <td>
+					<b>1.</b> Dans la premi&egrave;re partie du formulaire : 'Cr&eacute;ation d'un cours vide', remplir les quatre listes d&eacute;roulantes pour identifier le cours que vous souhaitez cr&eacute;er.<br/>
+					<b>2.</b> Choisir le mod&egrave;le de cours.<br/>
+					<b>3.</b> Cliquez sur [Enregistrer] en bas de la page.<br/>
+					<b>4.</b> &Agrave; la page suivante vous pouvez choisir entre :<ul style='margin-left:1em;'>
+						<li style='line-height: normal;'>[Cr&eacute;er la cl&eacute; d'inscription] &agrave; votre cours,</li>
+						<li style='line-height: normal;'>[Acc&eacute;der &agrave; votre cours],</li>
+						<li style='line-height: normal;'>[Cr&eacute;er ou supprimer un cours].</li>
+					</ul>
+				    </td>
+				    <td>
+					<b>1.</b> Dans la premi&egrave;re partie du formulaire : 'Cr&eacute;ation d'un cours vide', remplir les quatre liste d&eacute;roulante pour identifier le cours que vous souhaitez cr&eacute;er.<br/>
+					<b>2.</b> S&eacute;lectionner le cours dont vous souhaitez r&eacute;cup&eacute;rer le contenu dans la liste d&eacute;roulante de la partie 2 du formulaire : 'R&eacute;cup&eacute;ration d'un cours de l'an dernier '.<br/>
+					<b>3.</b> Choisir le mod&egrave;le de cours.<br/>
+					<b>4.</b> Cliquez sur [Enregistrer] en bas de la page.<br/>
+					<b>5.</b> A la page suivante vous pouvez choisir entre :<ul style='margin-left:1em;'>
+                                                <li style='line-height: normal;'>[Cr&eacute;er la cl&eacute; d'inscription] &agrave; votre cours (attention, si vous aviez une cl&eacute; d'inscription, merci de l'inscrire &agrave; nouveau sur e-campus),</li>
+                                                <li style='line-height: normal;'>[Acc&eacute;der &agrave; votre cours],</li>
+                                                <li style='line-height: normal;'>[Cr&eacute;er ou supprimer un cours].</li>
+					</ul>
+				    </td>
+				  </tr>
+				</table>
+			    </div>
+			  </div>
+			</div>
+		      </div>
+		");
+
+		// Bouton de suppression de cours
+		$hform->addElement('html',"<a style='float: left; position: absolute; top: 2em; right: 2em;' class='btn btn-primary' href='annuler_creation_cours.php' >
+			Suppression d'un cours cr&eacute;&eacute; par erreur</a>");
+
+		// Formulaire de création proprement dit
 		$mform = $this->_form; // Don't forget the underscore! 
 		$mform->setRequiredNote('* = champs obligatoires');
 		$mform->setJsWarnings('Erreur de saisie ','Veuillez corriger');
-
-        $mform->addElement('html', "<b>Cet espace vous permet de cr&eacute;er un espace de cours en ligne sur la plateforme p&eacute;dagogique Un&icirc;mes. Les cours propos&eacute;s sont rattach&eacute;s aux maquettes universitaires valid&eacute;es.</b><br/><br/>
-Vous pouvez au choix :<br/>
-A.      Cr&eacute;er un espace de cours vide<br/>
-B.      Cr&eacute;er un espace de cours en r&eacute;cup&eacute;rant les ressources et activit&eacute;s que vous aviez dans votre espace de cours de l'an dernier<br/><br/>
-<table border=1><tr style='font-weight: bold; text-align: center'>
-        <td>Cr&eacute;er un espace de cours vide</td><td>R&eacute;cup&eacute;ration des contenus d'un cours de l'an dernier</td>
-    </tr><tr>
-        <td>1.  Vous devez identifier le cours que vous souhaitez cr&eacute;er via les 4 listes d&eacute;roulantes de la partie \" Cr&eacute;ation d'un cours vide \"<br/>
-        2.      Cliquez sur \" Enregistrer \" en bas de la page.
-        </td>
-        <td>
-        1.      Vous devez identifier le cours dans la maquette via les 4 listes d&eacute;roulantes de la partie \" Cr&eacute;ation d'un cours vide \"<br/>
-        2.      S&eacute;lectionnez le cours dont vous souhaitez r&eacute;cup&eacute;rer le contenu dans la liste d&eacute;roulante de la partie \" R&eacute;cup&eacute;ration d'un cours de l'an dernier \"<br/>
-        3.      Cliquez sur \" Enregistrer \" en bas de la page.
-        </td></tr></table>
-");
 
 		// Première partie : cr&eacute;ation d'un cours
 		
@@ -165,7 +207,7 @@ B.      Cr&eacute;er un espace de cours en r&eacute;cup&eacute;rant les ressourc
 		mysqli_query ($db, "set names utf8");
 		*/
 
-		$oldmoodle_conn_string = "host=$CFG->dbhost port=5432 dbname=$CFG->old_database user=$CFG->dbuser password=$CFG->dbpass options='--client_encoding=UTF8'";
+		$oldmoodle_conn_string = "host=$CFG->old_database_server port=5432 dbname=$CFG->old_database user=$CFG->dbuser password=$CFG->dbpass options='--client_encoding=UTF8'";
 		$db = pg_connect($oldmoodle_conn_string) or die("Cannot connect to database engine!");
 
 		$sql = "SELECT distinct c.id courseid, c.fullname coursename, c.shortname shortname FROM mdl_user u, mdl_role_assignments r, mdl_context cx, mdl_course c WHERE u.id = 
@@ -177,7 +219,7 @@ r.userid AND r.contextid = cx.id AND cx.instanceid = c.id AND r.roleid in (2,3) 
 		if (!$result) echo "Aucun cours disponible";
 		else {
 			
-			$select_oldcourse = $mform->createElement( 'select', 'oldcourse', 'Ancien cours :', null);
+			$select_oldcourse = $mform->createElement( 'select', 'oldcourse', 'Ancien cours :', null, array('onchange' => 'if (this.selectedIndex) disableOptionsNoBackup(); else enableOptionsNoBackup();'));
 			// $select_oldcourse->addOption( 'Ancien cours', '', array( 'disabled' => 'disabled', 'selected'=>'true' ) );
 			$select_oldcourse->addOption( 'Ancien cours', '', array('selected'=>'true' ) );
 			
@@ -189,10 +231,106 @@ r.userid AND r.contextid = cx.id AND cx.instanceid = c.id AND r.roleid in (2,3) 
 		pg_close($db);
 
 
-		$this->add_action_buttons();
+                // Dernière partie : Modèle de cours
+                $mform->addElement('header', 'model', 'Les mod&egrave;les de cours');
+                $mform->closeHeaderBefore('model');
+                $mform->setExpanded('model');
+                $mform->addElement('html', 'Choisir ci-dessous le mod&egrave;le de cours que vous souhaitez utiliser.<br/><br/>');
 
-		$mform->addElement('header', 'source', 'Suppression d\'un cours cr&eacute;&eacute; par erreur');
-		$mform->addElement('html', 'Si vous souhaitez annuler une demande de cr&eacute;ation de cours effectu&eacute;e depuis cette interface, <a href="annuler_creation_cours.php">cliquez ici</a>.<br/><br/>') ;
+	        $mform->addGroup(array(
+		  $mform->createElement('radio', 'template', '', 
+		    '<figure><figcaption><a class="btn btn-secondary" data-toggle="modal" data-target="#stthem">Strandard - Th&eacute;matique</a></figcaption><img src="/pluginfile.php/77098/mod_label/intro/standard_them.jpg" width="250px" alt="Strandard th&eacute;matique"/></figure>', 'standard_them'),
+		  $mform->createElement('radio', 'template', '', 
+		    '<figure><figcaption><a class="btn btn-secondary" data-toggle="modal" data-target="#sttuiles">Standard - Tuiles</a></figcaption><img src="/pluginfile.php/77098/mod_label/intro/standard_tuiles.jpg" width="250px" alt="Standard tuiles"/></figure>', 'standard_tuiles'),
+/*
+		  $mform->createElement('radio', 'template', '', 
+		    '<figure><figcaption><a class="btn btn-secondary" data-toggle="modal" data-target="#richthem">Pr&eacute;sentiel enrichi - Th&eacute;matique</a></figcaption><img src="/pluginfile.php/75/block_html/content/presenrichi_them.jpg" width="250px" alt="Pr&eacute;sentiel enrichi th&eacute;matique"/></figure>', 'presenrichi_them'),
+		  $mform->createElement('radio', 'template', '', 
+		    '<figure><figcaption><a class="btn btn-secondary" data-toggle="modal" data-target="#richtuiles">Pr&eacute;sentiel enrichi - Tuiles</a></figcaption><img src="/pluginfile.php/75/block_html/content/presenrichi_tuiles.jpg" width="250px" alt="Pr&eacute;sentiel enrichi tuiles"/></figure>', 'presenrichi_tuiles'),
+		  $mform->createElement('radio', 'template', '', 
+		    '<figure><figcaption><a class="btn btn-secondary" data-toggle="modal" data-target="#hybthem">Hybride - Th&eacute;matique</a></figcaption><img src="/pluginfile.php/75/block_html/content/hyb_them.jpg" width="250px" alt="Hybride th&eacute;matique"/></figure>', 'hyb_them'),
+		  $mform->createElement('radio', 'template', '', 
+		    '<figure><figcaption><a class="btn btn-secondary" data-toggle="modal" data-target="#hybtuiles">Hybride - Tuiles</a></figcaption><img src="/pluginfile.php/75/block_html/content/hyb_tuiles.jpg" width="250px" alt="Hybride tuiles"/></figure>', 'hyb_tuiles'),
+ */
+        	), 'templates', 'Mod&egrave;le de cours', array(' '), false);
+		$mform->addRule('templates', 'Vous devez choisir un mod&egrave;le de cours', 'required', '', 'client');
+
+        	$hform->addElement('html', "
+			<div id='hybthem' class='modal moodle-has-zindex hide' data-region='modal-container' aria-hidden='false' role='dialog' tabindex='-1' style=''>
+                        <div class='modal-dialog modal-lg' role='document' data-region='modal' aria-labelledby='0-modal-title' tabindex='0'>
+                        <div class='modal-content'>
+                            <div class='modal-header'><h2>Hybride - Th&eacute;matique</h2>
+                                <a class='close' data-action='hide' aria-label='Fermer' data-dismiss='modal' aria-hidden='true' >
+                                    <i class='fa fa-times-circle-o' aria-hidden='true'></i>
+                                </a>
+                            </div>
+			    <img data-toggle='magnify' src='/pluginfile.php/75/block_html/content/hyb_them.jpg' width='90%' alt='Hybride - Th&eacute;matique'/>
+                        </div>
+                        </div>
+			</div>
+			<div id='hybtuiles' class='modal moodle-has-zindex hide' role='dialog' tabindex='-1' style=''>
+                        <div class='modal-dialog modal-lg' role='document' data-region='modal' aria-labelledby='0-modal-title' tabindex='0'>
+                        <div class='modal-content'>
+                            <div class='modal-header'><h2>Hybride - Tuiles</h2>
+                                <a class='close' data-action='hide' aria-label='Fermer' data-dismiss='modal' aria-hidden='true' >
+                                    <i class='fa fa-times-circle-o' aria-hidden='true'></i>
+                                </a>
+                            </div>
+			    <img data-toggle='magnify' src='/pluginfile.php/75/block_html/content/hyb_tuiles.jpg' width='90%' alt='Hybride - Tuiles'/>
+			</div>
+			</div>
+			</div>
+			<div id='richthem' class='modal moodle-has-zindex hide' role='dialog' tabindex='-1' style=''>
+                        <div class='modal-dialog modal-lg' role='document' data-region='modal' aria-labelledby='0-modal-title' tabindex='0'>
+                        <div class='modal-content'>
+                            <div class='modal-header'><h2>Pr&eacute;sentiel enrichi - Th&eacute;matique</h2>
+                                <a class='close' data-action='hide' aria-label='Fermer' data-dismiss='modal' aria-hidden='true' >
+                                    <i class='fa fa-times-circle-o' aria-hidden='true'></i>
+                                </a>
+                            </div>
+			    <img data-toggle='magnify' src='/pluginfile.php/75/block_html/content/presenrichi_them.jpg' width='90%' alt='Pr&eacute;sentiel enrichi - Th&eacute;matique'/>
+			</div>
+			</div>
+			</div>
+			<div id='richtuiles' class='modal moodle-has-zindex hide' role='dialog' tabindex='-1' style=''>
+                        <div class='modal-dialog modal-lg' role='document' data-region='modal' aria-labelledby='0-modal-title' tabindex='0'>
+                        <div class='modal-content'>
+                            <div class='modal-header'><h2>Pr&eacute;sentiel enrichi - Tuiles</h2>
+                                <a class='close' data-action='hide' aria-label='Fermer' data-dismiss='modal' aria-hidden='true' >
+                                    <i class='fa fa-times-circle-o' aria-hidden='true'></i>
+                                </a>
+                            </div>
+			    <img data-toggle='magnify' src='/pluginfile.php/75/block_html/content/presenrichi_tuiles.jpg' width='90%' alt='Pr&eacute;sentiel enrichi - Tuiles'/>
+			</div>
+			</div>
+			</div>
+			<div id='stthem' class='modal moodle-has-zindex hide' role='dialog' tabindex='-1' style=''>
+                        <div class='modal-dialog modal-lg' role='document' data-region='modal' aria-labelledby='0-modal-title' tabindex='0'>
+                        <div class='modal-content'>
+                            <div class='modal-header'><h2>Standard - Th&eacute;matique</h2>
+                                <a class='close' data-action='hide' aria-label='Fermer' data-dismiss='modal' aria-hidden='true' >
+                                    <i class='fa fa-times-circle-o' aria-hidden='true'></i>
+                                </a>
+                            </div>
+			    <img data-toggle='magnify' src='/pluginfile.php/77098/mod_label/intro/standard_them.jpg' width='90%' alt='Standard - Th&eacute;matique'/>
+			</div>
+			</div>
+			</div>
+			<div id='sttuiles' class='modal moodle-has-zindex hide' role='dialog' tabindex='-1' style=''>
+                        <div class='modal-dialog modal-lg' role='document' data-region='modal' aria-labelledby='0-modal-title' tabindex='0'>
+                        <div class='modal-content'>
+                            <div class='modal-header'><h2>Standard - Tuiles</h2>
+                                <a class='close' data-action='hide' aria-label='Fermer' data-dismiss='modal' aria-hidden='true' >
+                                    <i class='fa fa-times-circle-o' aria-hidden='true'></i>
+                                </a>
+                            </div>
+			    <img data-toggle='magnify' src='/pluginfile.php/77098/mod_label/intro/standard_tuiles.jpg' width='90%' alt='Standard - Tuiles'/>
+			</div>
+			</div>
+			</div>");
+
+
+		$this->add_action_buttons();
 
 	}
 	//Custom validation should be added here
