@@ -36,12 +36,16 @@ if (strpos($USER->email,'@etudiant.unimes.fr') == false) {
   grid-gap: 2%;
 }
 .unimes {
-color: #E3007B;
+  color: #e84e24;
+}
+#oaide.unimes {
+  background-color: #e84e24;
+  color: white;
 }
 figure img {
-height: 300px;
-object-fit: contain;
-top: 0;
+  height: 300px;
+  object-fit: contain;
+  top: 0;
 }
 
 @media(max-width: 768px) {
@@ -49,6 +53,12 @@ top: 0;
 }
 @media(min-width: 768px) {
   #grid { grid-template-columns: 30% 30% 30%;} 
+}
+@media (min-width: 992px) {
+  #stthem .modal-lg, #sttuiles .modal-lg, #popaide .modal-lg {max-width: 900px;}
+}
+@media (min-width: 1200px) {
+  #stthem .modal-lg, #sttuiles .modal-lg, #popaide .modal-lg {max-width: 1100px;}
 }
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-magnify/0.3.0/css/bootstrap-magnify.min.css" integrity="sha512-87oRirL4+UGU1hJaVeIATDDK5Jls/qE3sTFmAyc4zj+DdcJJmEgWwO4JhWaybNkz8jhNbMesbBnlg73YM5tadQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -117,26 +127,16 @@ if (isset($courscree)) {
 		// $model = __DIR__."/templates/$template.mbz";
 
 		// On recherche les fichiers template en base moodle : 
-		$sel_tpl = "select filename, contenthash from mdl_files where filename in ('hyb_them.mbz','hyb_tuiles.mbz','presenrichi_them.mbz','presenrichi_tuiles.mbz','standard_them.mbz','standard_tuiles.mbz') and filearea='content';";
+		//$sel_tpl = "select filename, contenthash from mdl_files where filename in ('hyb_them.mbz','hyb_tuiles.mbz','presenrichi_them.mbz','presenrichi_tuiles.mbz','standard_them.mbz','standard_tuiles.mbz') and filearea='content';";
+		$sel_tpl = "select filename, contenthash from mdl_files where filename in ('hyb_them.mbz','hyb_tuiles.mbz','presenrichi_them.mbz','presenrichi_tuiles.mbz','standard_them.mbz','standard_tuiles.mbz') and filearea='intro';";
 
 		$files = $DB->get_records_sql_menu($sel_tpl);
-		// print_r($files);
-		$filedir = '/data2/moodle/2022/filedir/';
+		$filedir = $CFG->dataroot . '/filedir/' ;
 		
 		$model = $filedir . substr($files[$template.'.mbz'],0,2) .'/'. substr($files[$template.'.mbz'],2,2) .'/'. $files[$template.'.mbz'];
 		$backup = "";
 	
-		//
-		// guillaume adaptation postgres
-		//
-	
 		if (isset($formdata->oldcourse) && !empty($formdata->oldcourse)) {
-
-			/*
-			$oldb = mysqli_connect ($CFG->old_mysql,$CFG->old_user,$CFG->old_passwd) or die ('ERREUR '.mysqli_error($oldb));
-			mysqli_select_db ($oldb, $CFG->old_database) or die ('ERREUR '.mysqli_error($oldb));
-			mysqli_query ($oldb, "set names utf8");
-			*/
 
         	        $oldmoodle_conn_string = "host=$CFG->old_database_server port=5432 dbname=$CFG->old_database user=$CFG->dbuser password=$CFG->dbpass options='--client_encoding=UTF8'";
 	                $oldb = pg_connect($oldmoodle_conn_string) or die("Cannot connect to database engine!");			
@@ -166,11 +166,17 @@ if (isset($courscree)) {
 			pg_close($oldb);
 
 		} // fin restauration
+		
+		// custom field : semestre
+		$semestre = "Pas d'organisation semestrielle" ;
+		if (preg_match('/^semestre\s*(\d+)/i', $tniveau3, $numeros)) {
+			  $semestre = $numeros[1] % 2 === 0 ? 'Semestre pair' : 'Semestre impair';
+		}
 
 		//On écrit dans un fichier csv le cours a ajouté
 		$fichierCours = "cours.csv";
 		$fic = fopen($fichierCours,'w+');
-		$ch = "fullname;shortname;category_path;idnumber;summary;backupfile;format\n";
+		$ch = "fullname;shortname;category_path;idnumber;summary;backupfile;format;customfield_semestre\n";
 		fwrite($fic,$ch);
 		// On définit la catégorie de destination
 		if ($tniveau1 === $tniveau2) {
@@ -191,11 +197,11 @@ if (isset($courscree)) {
 		if (strpos($template,'tuiles') !== false) $format = 'tiles';
 
 		if (isset($formdata->oldcourse) && !empty($formdata->oldcourse) && !empty($backup)) { // on blinde le test !
-			$cours = ucfirst(strtolower($coursText)).";".ucfirst(strtolower($coursText))."-".trim($coursId).";".$category.";".trim($coursId).";".strtolower($coursText).";".$backup.";".$format."\n";
+			$cours = ucfirst(strtolower($coursText)).";".ucfirst(strtolower($coursText))."-".trim($coursId).";".$category.";".trim($coursId).";".strtolower($coursText).";".$backup.";".$format.";".$semestre."\n";
 			fwrite($fic,$cours);
 		}
 
-		$cours = ucfirst(strtolower($coursText)).";".ucfirst(strtolower($coursText))."-".trim($coursId).";".$category.";".trim($coursId).";".strtolower($coursText).";".$model.";".$format."\n";
+		$cours = ucfirst(strtolower($coursText)).";".ucfirst(strtolower($coursText))."-".trim($coursId).";".$category.";".trim($coursId).";".strtolower($coursText).";".$model.";".$format.";".$semestre."\n";
 		fwrite($fic,$cours);
 
 		// $connect = ocilogon($CFG->si_user,$CFG->si_pass,$CFG->si_url_base);
@@ -222,7 +228,7 @@ if (isset($courscree)) {
 				$newText = ociresult($stmt,2);
 				if ($newcategory != $category) {
 					$num++;
-					$cours = ucfirst(strtolower($newText)).";".ucfirst(strtolower($newText))."-".trim($coursId)."-".$num.";".$newcategory.";".trim($coursId)."-".$num.";".strtolower($newText).";;singleactivity\n";
+					$cours = ucfirst(strtolower($newText)).";".ucfirst(strtolower($newText))."-".trim($coursId)."-".$num.";".$newcategory.";".trim($coursId)."-".$num.";".strtolower($newText).";;singleactivity;".$semestre."\n";
 					fwrite($fic,$cours);
 					$mutualises[trim($coursId)."-".$num] = $newcategory . " / " . $newText;
 				}
