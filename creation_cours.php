@@ -12,9 +12,14 @@ $PAGE->set_pagelayout('base');
 $PAGE->set_url('/local/creation_cours/creation_cours.php');
 
 echo $OUTPUT->header();
-?>
 
-<?php
+// fermeture du formulaire
+$formulaireactif = true ;
+if ($formulaireactif == false) {
+        echo "<h2>Le formulaire de création de cours est fermé.</h2></body></html>" ;
+        exit ;
+}
+
 $datejour = date('d/m/Y');
 $djour = explode("/", date('d/m/Y')); 
 $auj = $djour[2].$djour[1].$djour[0]; 
