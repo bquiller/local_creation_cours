@@ -13,12 +13,14 @@ $PAGE->set_url('/local/creation_cours/creation_cours.php');
 
 echo $OUTPUT->header();
 
+
 // fermeture du formulaire
-$formulaireactif = true ;
+$formulaireactif = get_config('local_creation_cours', 'enableform') ;
 if ($formulaireactif == false) {
         echo "<h2>Le formulaire de création de cours est fermé.</h2></body></html>" ;
         exit ;
 }
+
 
 $datejour = date('d/m/Y');
 $djour = explode("/", date('d/m/Y')); 
